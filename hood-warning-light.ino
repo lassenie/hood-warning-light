@@ -3,15 +3,18 @@
 // Wiring of Arduino Pro Mini:
 //
 //                     +----------+
-//                     |      raw ø----- Hood DC+
-//                     |      gnd ø----- Hood GND
-//   LED output - -----ø gnd      |
-//   LED output + -----ø 2        |
+//                     |      Raw ø----- Hood DC+
+//                     |      GND ø----- Hood GND
+//   LED output - -----ø GND      |
+//   LED output + -----ø 2    Vcc ø 
 //                     |          |
-// Cooktop switch -----ø 7        |
-// Cooktop switch -----ø 8        |
-//    Hood signal -----ø 9        |
+// Cooktop switch -----ø 7*       |
+// Cooktop switch -----ø 8**      |
+//    Hood signal -----ø 9**      |
 //                     +----------+
+//
+//  * Mount 10kOhm pull-down resistor (to GND) on pin 7
+// ** Mount 10kOhm pull-up resistors (to Vcc) on pins 8 and 9.
 //
 // LED output:     LED needs resistor.
 // Hood signal:    Active low, external pull-up resistor.
@@ -19,13 +22,13 @@
 
 #define INPUT_READING_INTERVAL_MSEC           50
 #define HOOD_INPUT_CHANGE_STABLE_MSEC       1000
-#define COOKTOP_INPUT_ACTIVE_STABLE_MSEC     100
-#define COOKTOP_INPUT_INACTIVE_STABLE_MSEC  3000
+#define COOKTOP_INPUT_ACTIVE_STABLE_MSEC      50
+#define COOKTOP_INPUT_INACTIVE_STABLE_MSEC  5000
 #define LED_BLINK_HALF_PERIOD_MSEC           250
 
 #define EXT_LED_OUTPUT_PIN   2
-#define COOKTOP_INPUT_PIN    7
-#define COOKTOP_OUTPUT_PIN   8
+#define COOKTOP_OUTPUT_PIN   7
+#define COOKTOP_INPUT_PIN    8
 #define HOOD_INPUT_PIN       9
 #define INT_LED_OUTPUT_PIN  13
 
@@ -44,8 +47,8 @@ void setup()
   pinMode(INT_LED_OUTPUT_PIN, OUTPUT);
   pinMode(EXT_LED_OUTPUT_PIN, OUTPUT);
   pinMode(COOKTOP_OUTPUT_PIN, OUTPUT);
-  pinMode(COOKTOP_INPUT_PIN, INPUT_PULLUP);
-  pinMode(HOOD_INPUT_PIN, INPUT_PULLUP);
+  pinMode(COOKTOP_INPUT_PIN, INPUT);
+  pinMode(HOOD_INPUT_PIN, INPUT);
 
   digitalWrite(INT_LED_OUTPUT_PIN, LOW);
   digitalWrite(EXT_LED_OUTPUT_PIN, LOW);
