@@ -18,7 +18,7 @@
 // *** Mount 10kOhm pull-up resistors (to Vcc) on pins 8 and 9.
 //
 // LED output:     LED needs resistor.
-// Hood signal:    Active low, external pull-up resistor.
+// Hood signal:    Active low.
 // Cooktop switch: May be stable or closed for a few milliseconds at least once per 3 sec.
 
 #define INPUT_READING_INTERVAL_MSEC           50
