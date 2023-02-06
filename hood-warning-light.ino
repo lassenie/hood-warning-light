@@ -6,18 +6,19 @@
 //                     |      Raw ø----- Hood DC+
 //                     |      GND ø----- Hood GND
 //   LED output - -----ø GND      |
-//   LED output + -----ø 2    Vcc ø 
+//  *LED output + -----ø 2    Vcc ø 
 //                     |          |
-// Cooktop switch -----ø 7*       |
-// Cooktop switch -----ø 8**      |
-//    Hood signal -----ø 9**      |
+// Cooktop switch -----ø 7**      |
+// Cooktop switch -----ø 8***     |
+//    Hood signal -----ø 9***     |
 //                     +----------+
 //
-//  * Mount 10kOhm pull-down resistor (to GND) on pin 7
-// ** Mount 10kOhm pull-up resistors (to Vcc) on pins 8 and 9.
+//   * Use current-limiting resistor in series with LED.
+//  ** Mount 10kOhm pull-down resistor (to GND) on pin 7.
+// *** Mount 10kOhm pull-up resistors (to Vcc) on pins 8 and 9.
 //
 // LED output:     LED needs resistor.
-// Hood signal:    Active low, external pull-up resistor.
+// Hood signal:    Active low.
 // Cooktop switch: May be stable or closed for a few milliseconds at least once per 3 sec.
 
 #define INPUT_READING_INTERVAL_MSEC           50
