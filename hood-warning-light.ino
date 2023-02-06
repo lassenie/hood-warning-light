@@ -35,6 +35,8 @@
 #define COOKTOP_ACTIVE_LEVEL  LOW
 #define HOOD_ACTIVE_LEVEL     LOW
 
+#define SERIAL_BAUD_RATE  9600
+
 // Startup assuming idle state with stable inactive inputs
 unsigned long hoodChangeMillis = 0;
 unsigned long cooktopChangeMillis = 0;
@@ -53,6 +55,11 @@ void setup()
   digitalWrite(INT_LED_OUTPUT_PIN, LOW);
   digitalWrite(EXT_LED_OUTPUT_PIN, LOW);
   digitalWrite(COOKTOP_OUTPUT_PIN, COOKTOP_ACTIVE_LEVEL);
+
+  Serial.begin(SERIAL_BAUD_RATE);
+
+  Serial.println("Hood Warning Light");
+  Serial.println("==================");
 }
 
 void loop()
@@ -64,14 +71,17 @@ void loop()
 
 void checkInputs()
 {
-  checkInput(COOKTOP_INPUT_PIN, COOKTOP_ACTIVE_LEVEL, &cooktopInputState, &cooktopChangeMillis, COOKTOP_INPUT_ACTIVE_STABLE_MSEC, COOKTOP_INPUT_INACTIVE_STABLE_MSEC);
-  checkInput(HOOD_INPUT_PIN,    HOOD_ACTIVE_LEVEL,    &hoodInputState,    &hoodChangeMillis,    HOOD_INPUT_CHANGE_STABLE_MSEC,    HOOD_INPUT_CHANGE_STABLE_MSEC);
+  checkInput("Cooktop", COOKTOP_INPUT_PIN, COOKTOP_ACTIVE_LEVEL, &cooktopInputState, &cooktopChangeMillis, COOKTOP_INPUT_ACTIVE_STABLE_MSEC, COOKTOP_INPUT_INACTIVE_STABLE_MSEC);
+  checkInput("Hood",    HOOD_INPUT_PIN,    HOOD_ACTIVE_LEVEL,    &hoodInputState,    &hoodChangeMillis,    HOOD_INPUT_CHANGE_STABLE_MSEC,    HOOD_INPUT_CHANGE_STABLE_MSEC);
 }
 
-void checkInput(int pinNo, int signalActiveLevel, int* pSignalState, unsigned long* pSignalChangeMillis, unsigned long activeStableMillis, unsigned long inactiveStableMillis)
+void checkInput(String name, int pinNo, int signalActiveLevel, int* pSignalState, unsigned long* pSignalChangeMillis, unsigned long activeStableMillis, unsigned long inactiveStableMillis)
 {
   int signalLevel = digitalRead(pinNo);
   unsigned long millisNow = millis();
+
+  bool goingActive = (signalLevel == signalActiveLevel) && (signalLevel != *pSignalState);
+  bool goingInactive = (signalLevel != signalActiveLevel) && (signalLevel != *pSignalState);
 
   // Not currently waiting for a stable signal change?
   if (*pSignalChangeMillis == 0)
@@ -85,13 +95,17 @@ void checkInput(int pinNo, int signalActiveLevel, int* pSignalState, unsigned lo
       // Reserved value?
       if (*pSignalChangeMillis == 0)
         *pSignalChangeMillis = 1;
+
+      if (goingActive || goingInactive)
+      {
+        Serial.print(name);
+        Serial.print(" going ");
+        Serial.println(goingActive ? "active?" : "inactive?");
+      }
     }
   }
   else // Waiting for a stable signal change
   {
-    bool goingActive = (signalLevel == signalActiveLevel) && (signalLevel != *pSignalState);
-    bool goingInactive = (signalLevel != signalActiveLevel) && (signalLevel != *pSignalState);
-
     // State change stable for a certain time?
     if ((goingActive   && (millisNow - *pSignalChangeMillis) >= activeStableMillis) ||
         (goingInactive && (millisNow - *pSignalChangeMillis) >= inactiveStableMillis))
@@ -99,6 +113,10 @@ void checkInput(int pinNo, int signalActiveLevel, int* pSignalState, unsigned lo
       // State change done
       *pSignalState = signalLevel;
       *pSignalChangeMillis = 0;
+
+      Serial.print(name);
+      Serial.print(" now ");
+      Serial.println(goingActive ? "active." : "inactive.");
     }
     else // No stable state change (yet)
     {
